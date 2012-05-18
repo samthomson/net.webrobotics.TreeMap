@@ -146,11 +146,10 @@ net.webrobotics.TreeMap.prototype.positionOf=function(element,elements){
 
     var half=Math.floor((elements.length-1)/2);
     var c=this.comparator.compare(element,elements[half]);
-    //alert(element.getKey()+"->"+c);
+
     if (c==0){
         return half;
     }else{
-        //base case, end of array
         if (elements.length==1){
             if (c==-1){
                 return 0;
