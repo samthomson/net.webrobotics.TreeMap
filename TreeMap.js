@@ -201,7 +201,7 @@ net.webrobotics.TreeMap.prototype.toString=function(){
 net.webrobotics.TreeMap.prototype.delete=function(key){
     var position=this.positionOf(new net.webrobotics.MapElement(key));
 
-    if (this.elements[position] && this.elements[position].getKey()!=key)
+    if (!this.elements[position] || this.elements[position].getKey()!=key)
         return false;
     var tmp1=new Array();
     if (position>0){
@@ -217,7 +217,7 @@ net.webrobotics.TreeMap.prototype.delete=function(key){
 net.webrobotics.TreeMap.prototype.get=function(key){
     var position=this.positionOf(new net.webrobotics.MapElement(key));
 
-    if (this.elements[position] && this.elements[position].getKey()!=key)
+    if (!this.elements[position] || this.elements[position].getKey()!=key)
         return null;
     return this.elements[position].getValues();
 
