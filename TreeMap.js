@@ -44,6 +44,10 @@ net.webrobotics.MapElement.prototype.getValues=function(){
     return this.values;
 }
 
+net.webrobotics.MapElement.prototype.getLastValue=function(){
+    return this.values[this.values.length-1];
+}
+
 //##########################################################
 //#### Comparator for bgplay.js
 //#### @Massimo Candela
@@ -53,10 +57,10 @@ net.webrobotics.MapElement.prototype.getValues=function(){
 function Comparator(){
 }
 
-Comparator.prototype.compare=function(obj1,obj2){
-    if (obj1.getKey()<obj2.getKey())
+Comparator.prototype.compare=function(key1,key2){
+    if (key1<key2)
         return -1
-    else if (obj1.getKey()>obj2.getKey())
+    else if (key1>key2)
         return 1
     else return 0;
 }
@@ -91,8 +95,15 @@ net.webrobotics.TreeMap=function(comparator){
     this.comparator=comparator;
 }
 
-net.webrobotics.TreeMap.prototype.size=function(){
-    return this.elements.length;
+net.webrobotics.TreeMap.prototype.size=function(duplicates){
+    if (duplicates){
+        var out=0;
+        for (var n=0;n<this.elements.length;n++){
+            out+=this.elements[n].getValues().length
+        }
+        return out;
+    }else
+        return this.elements.length;
 }
 
 net.webrobotics.TreeMap.prototype.last=function(){
@@ -103,49 +114,58 @@ net.webrobotics.TreeMap.prototype.first=function(){
     return this.elements[0];
 }
 
+net.webrobotics.TreeMap.prototype.at=function(at){
+    return this.elements[at].getValues();
+}
+
 net.webrobotics.TreeMap.prototype.put=function(key,value){
     var element=new net.webrobotics.MapElement(key);
     element.addValue(value);
 
     if (this.size()==0){
         this.elements.push(element);
-
         //If the collection is already sorted, this check prevents the worst case
-    }else if (this.last().getKey()<=key){
-        if (this.last().getKey()<key){
-            this.elements.push(element);
-        }else{
-            this.last().addValue(value);
-        }
-    }else if (this.first().getKey()>=key){
-        if (this.first().getKey()<key){
-            var tmp=new Array();
-            tmp.push(element);
-            tmp.concat(this.elements);
-            this.elements=tmp;
-        }else{
-            this.first().addValue(value);
-        }
     }else{
-        var position=this.positionOf(element);
-        if (this.elements[position].getKey()==key){
-            this.elements[position].addValue(value);
+        var cmp=this.comparator.compare(this.last().getKey(),key);
+        if (cmp<1){
+            if (cmp==-1){
+                this.elements.push(element);
+            }else{
+                this.last().addValue(value);
+            }
         }else{
-            var tmp1=new Array();
-            tmp1=tmp1.concat(this.elements.slice(0,position));
-            tmp1.push(element);
-            tmp1=tmp1.concat(this.elements.slice(position));
-            this.elements=tmp1;
+            var cmp=this.comparator.compare(this.first().getKey(),key);
+            if (cmp>-1){
+                if (cmp==1){
+                    var tmp=new Array();
+                    tmp.push(element);
+                    tmp=tmp.concat(this.elements);
+                    this.elements=tmp;
+                }else{
+                    this.first().addValue(value);
+                }
+            }else{
+                var position=this.positionOf(element);
+                if (this.elements[position].getKey()==key){
+                    this.elements[position].addValue(value);
+                }else{
+                    var tmp1=new Array();
+                    tmp1=tmp1.concat(this.elements.slice(0,position));
+                    tmp1.push(element);
+                    tmp1=tmp1.concat(this.elements.slice(position));
+                    this.elements=tmp1;
+                }
+            }
         }
     }
 }
 
-net.webrobotics.TreeMap.prototype.positionOf=function(element,elements){
+net.webrobotics.TreeMap.prototype.positionOf=function(key,elements){
     if (!elements)
         elements=this.elements;
 
     var half=Math.floor((elements.length-1)/2);
-    var c=this.comparator.compare(element,elements[half]);
+    var c=this.comparator.compare(key,elements[half].getKey());
 
     if (c==0){
         return half;
@@ -160,14 +180,14 @@ net.webrobotics.TreeMap.prototype.positionOf=function(element,elements){
             if (c==-1){
                 return 0;
             }else{
-                return 1+this.positionOf(element,elements.slice(1));
+                return 1+this.positionOf(key,elements.slice(1));
             }
         }else{
             if (c==-1){
-                return this.positionOf(element,elements.slice(0,half));
+                return this.positionOf(key,elements.slice(0,half));
             }else{
                 var tmp2=elements.slice(half+1);
-                return elements.length-tmp2.length+this.positionOf(element,tmp2);
+                return elements.length-tmp2.length+this.positionOf(key,tmp2);
             }
         }
     }
@@ -199,7 +219,7 @@ net.webrobotics.TreeMap.prototype.toString=function(){
 }
 
 net.webrobotics.TreeMap.prototype.delete=function(key){
-    var position=this.positionOf(new net.webrobotics.MapElement(key));
+    var position=this.positionOf(key);
 
     if (!this.elements[position] || this.elements[position].getKey()!=key)
         return false;
@@ -215,10 +235,10 @@ net.webrobotics.TreeMap.prototype.delete=function(key){
 }
 
 net.webrobotics.TreeMap.prototype.get=function(key){
-    var position=this.positionOf(new net.webrobotics.MapElement(key));
+    var position=this.positionOf(key);
 
     if (!this.elements[position] || this.elements[position].getKey()!=key)
         return null;
-    return this.elements[position].getValues();
+    return this.at(position);
 
 }
