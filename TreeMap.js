@@ -242,3 +242,17 @@ net.webrobotics.TreeMap.prototype.get=function(key){
     return this.at(position);
 
 }
+
+net.webrobotics.TreeMap.prototype.nearest=function(key,after){
+    var position=this.positionOf(key);
+var element=this.elements[position];
+    if (element.getKey()==key){
+        return element.getValues();
+    }else{
+        if (after){
+            return this.at(position+1);
+        }else{
+            return this.at(position-1)
+        }
+    }
+}
