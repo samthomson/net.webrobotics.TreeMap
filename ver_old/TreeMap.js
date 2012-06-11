@@ -153,33 +153,37 @@ net.webrobotics.TreeMap.prototype.put=function(key,value){
     }
 }
 
-net.webrobotics.TreeMap.prototype.positionOf=function(key){
-    this.positionOfTR=function(key,elements,start,stop){
-        var size=(stop-start)+1;
+net.webrobotics.TreeMap.prototype.positionOf=function(key,elements){
+    if (!elements)
+        elements=this.elements;
 
-        var half=Math.floor((size)/2)+start;
-        var comparation=this.comparator(elements[half].getKey(),key);
+    var half=Math.floor((elements.length-1)/2);
+    var c=this.comparator(key,elements[half].getKey());
 
-        if (comparation==0){
-            return half;
-        }else{
-            if (size==1){
-                if (comparation==-1){
-                    return start+1;
-                }else{
-                    return start;
-                }
+    if (c==0){
+        return half;
+    }else{
+        if (elements.length==1){
+            if (c==-1){
+                return 0;
             }else{
-                if (comparation==-1){
-                    return this.positionOfTR(key,elements,half,stop);
-                }else{
-                    return this.positionOfTR(key,elements,start,half-1);
-                }
+                return 1;
+            }
+        }else if (elements.length==2){
+            if (c==-1){
+                return 0;
+            }else{
+                return 1+this.positionOf(key,elements.slice(1));
+            }
+        }else{
+            if (c==-1){
+                return this.positionOf(key,elements.slice(0,half));
+            }else{
+                var tmp2=elements.slice(half+1);
+                return elements.length-tmp2.length+this.positionOf(key,tmp2);
             }
         }
     }
-
-    return this.positionOfTR(key,this.elements,0,this.elements.length-1);
 }
 
 net.webrobotics.TreeMap.prototype.toArray=function(){
