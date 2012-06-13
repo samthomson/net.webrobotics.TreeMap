@@ -142,7 +142,7 @@ net.webrobotics.TreeMap.prototype.put=function(key,value){
     }
 
     cur_element=this.elements[position];
-    if (cur_element!=null && cur_element.getKey()==key){
+    if (cur_element!=null && this.comparator(cur_element.getKey(),key)==0){
         cur_element.addValue(value);
     }else{
         var tmp=new Array();
@@ -208,7 +208,7 @@ net.webrobotics.TreeMap.prototype.toString=function(){
 net.webrobotics.TreeMap.prototype.delete=function(key){
     var position=this.positionOf(key);
 
-    if (!this.elements[position] || this.elements[position].getKey()!=key)
+    if (!this.elements[position] || this.comparator(this.elements[position].getKey(),key)!=0)
         return false;
     var tmp1=new Array();
     if (position>0){
@@ -224,7 +224,7 @@ net.webrobotics.TreeMap.prototype.delete=function(key){
 net.webrobotics.TreeMap.prototype.get=function(key){
     var position=this.positionOf(key);
 
-    if (!this.elements[position] || this.elements[position].getKey()!=key)
+    if (!this.elements[position] || this.comparator(this.elements[position].getKey(),key)!=0)
         return null;
     return this.at(position);
 }
@@ -232,7 +232,7 @@ net.webrobotics.TreeMap.prototype.get=function(key){
 net.webrobotics.TreeMap.prototype.nearest=function(key,after){
     var position=this.positionOf(key);
     var element=this.elements[position];
-    if((element != null && element.getKey() == key) || after) {
+    if((element != null && this.comparator(element.getKey(),key)==0) || after) {
         return element.getValues();
     }
     return this.at(position-1);
