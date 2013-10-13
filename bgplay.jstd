@@ -1,4 +1,0 @@
-load:
-  - lib/TreeMap_revision.js
-  - model/*.js
-  - test/*.js
