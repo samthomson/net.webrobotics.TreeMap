@@ -156,6 +156,21 @@ net.webrobotics.TreeMap.prototype.forEachCouple = function (callback) {
     }
 };
 
+//this function applies the callback function for each element with the provided key
+net.webrobotics.TreeMap.prototype.forEachValuesWithKey = function (key, callback) {
+    var values, length, n;
+
+    values = this.get(key);
+    if (values!=null){
+        values = (this.allowDuplicateKeys == true) ? values : [values];
+        length = values.length;
+
+        for (n =0; n<length; n++){
+            callback(values[n]);
+        }
+    }
+};
+
 // filteredFunction takes an element and returns a boolean value that establishes
 // if the element is part of the sub-treeMap
 net.webrobotics.TreeMap.prototype.getFilteredSubTreeMapByValue = function (filterFunction) {
@@ -358,6 +373,18 @@ net.webrobotics.TreeMap.prototype.remove = function (key) {
     }
     this.elements = tmp1;
     return true;
+};
+
+net.webrobotics.TreeMap.prototype.removeValue = function (value) {
+    var validSubTreemap;
+    validSubTreemap = this.getFilteredSubTreeMapByValue(function(element){
+        if (element == value){
+            return false;
+        }
+        return true;
+    });
+
+    this.elements = validSubTreemap.elements;
 };
 
 net.webrobotics.TreeMap.prototype.get = function (key) {
