@@ -1,4 +1,4 @@
 net.webrobotics.TreeMap
 =======================
 
-A javascritp TreeMap implementation
+A javascript TreeMap implementation
